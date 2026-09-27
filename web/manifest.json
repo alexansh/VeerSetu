@@ -1,0 +1,11 @@
+{
+    "name": "RakshakSense - CRPF / MHA",
+    "short_name": "RakshakSense",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0B1120",
+    "theme_color": "#10B981",
+    "description": "AI-Based Predictive Personnel Stress and Welfare Monitoring System for Uniformed Forces (SIH26186).",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false
+}

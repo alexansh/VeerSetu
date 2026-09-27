@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.RakshakSense" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#0B1120</item>
+        <item name="android:navigationBarColor">#0B1120</item>
+    </style>
+</resources>
