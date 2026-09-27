@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#071124"/>
+      <stop offset="50%" stop-color="#0D1F3C"/>
+      <stop offset="100%" stop-color="#042F2E"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="48" y1="32" x2="208" y2="224" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="innerShield" x1="64" y1="48" x2="192" y2="208" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F2942"/>
+      <stop offset="100%" stop-color="#064E3B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded App Icon Background -->
+  <rect width="256" height="256" rx="56" fill="url(#bgGrad)"/>
+  <rect x="8" y="8" width="240" height="240" rx="48" stroke="#10B981" stroke-opacity="0.25" stroke-width="2"/>
+
+  <!-- Outer Tactical Shield -->
+  <path d="M128 28L206 60V122C206 174 172 214 128 230C84 214 50 174 50 122V60L128 28Z"
+        fill="url(#shieldGrad)"/>
+
+  <!-- Inner Core Shield -->
+  <path d="M128 40L194 68V121C194 166 165 201 128 216C91 201 62 166 62 121V68L128 40Z"
+        fill="url(#innerShield)"/>
+
+  <!-- Setu Bridge Arch (Welfare Bridge) -->
+  <path d="M78 166C94 146 110 138 128 138C146 138 162 146 178 166"
+        stroke="#06B6D4" stroke-width="6" stroke-linecap="round" stroke-opacity="0.65"/>
+
+  <!-- Valor Star Emblem at Top Crest -->
+  <polygon points="128,54 133,65 145,66 136,74 138,86 128,80 118,86 120,74 111,66 123,65"
+           fill="#F59E0B"/>
+
+  <!-- ECG Biometric Heartbeat Pulse + Veer 'V' Peak -->
+  <path d="M68 132H96L106 108L120 162L136 92L148 144L158 132H188"
+        stroke="#34D399" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="68" cy="132" r="5" fill="#06B6D4"/>
+  <circle cx="188" cy="132" r="5" fill="#F59E0B"/>
+</svg>

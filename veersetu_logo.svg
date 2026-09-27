@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" width="760" height="220" fill="none">
+  <defs>
+    <linearGradient id="bannerBg" x1="0" y1="0" x2="760" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#070E1A"/>
+      <stop offset="60%" stop-color="#0D1829"/>
+      <stop offset="100%" stop-color="#062C2B"/>
+    </linearGradient>
+    <linearGradient id="crestGrad" x1="40" y1="24" x2="180" y2="196" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="760" height="220" rx="28" fill="url(#bannerBg)" stroke="#1E3A5F" stroke-width="2"/>
+
+  <!-- Left Shield Emblem -->
+  <path d="M110 28L174 54V106C174 150 146 183 110 196C74 183 46 150 46 106V54L110 28Z"
+        fill="url(#crestGrad)"/>
+  <path d="M110 38L164 60V105C164 143 140 172 110 184C80 172 56 143 56 105V60L110 38Z"
+        fill="#0B192C"/>
+  <polygon points="110,50 114,59 124,60 117,67 119,77 110,72 101,77 103,67 96,60 106,59"
+           fill="#F59E0B"/>
+  <path d="M62 116H84L93 96L105 142L118 82L128 126L136 116H158"
+        stroke="#34D399" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Brand Wordmark -->
+  <text x="210" y="92" fill="#F8FAFC" font-family="Segoe UI, Roboto, sans-serif" font-size="46" font-weight="800" letter-spacing="1.5">
+    VEER<tspan fill="#10B981">SETU</tspan>
+  </text>
+  <rect x="478" y="60" width="106" height="32" rx="8" fill="#10B981" fill-opacity="0.18" stroke="#10B981" stroke-width="1.5"/>
+  <text x="531" y="81" fill="#34D399" font-family="Segoe UI, Roboto, sans-serif" font-size="15" font-weight="800" text-anchor="middle" letter-spacing="1">
+    SIH26186
+  </text>
+
+  <text x="210" y="128" fill="#06B6D4" font-family="Segoe UI, Roboto, sans-serif" font-size="18" font-weight="700" letter-spacing="0.8">
+    RAKSHAK SENSE • AI-BASED PREDICTIVE STRESS &amp; WELFARE SYSTEM
+  </text>
+  <text x="210" y="160" fill="#CBD5E1" font-family="Segoe UI, Roboto, sans-serif" font-size="15" font-weight="600">
+    वीर सेतु — हर जवान के स्वास्थ्य, मनोबल और कल्याण का स्मार्ट सुरक्षा कवच (CRPF / MHA)
+  </text>
+</svg>

@@ -44,6 +44,9 @@ data class PersonnelRecord(
 }
 
 class RakshakState {
+    // Splash screen intro visibility (true on initial launch, can be replayed by tapping logo)
+    var showSplash by mutableStateOf(true)
+
     // 0 = Jawan Companion, 1 = MO / Commander Console
     var activeTab by mutableIntStateOf(0)
 

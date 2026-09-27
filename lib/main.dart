@@ -21,6 +21,7 @@ class RakshakSenseApp extends StatefulWidget {
 
 class _RakshakSenseAppState extends State<RakshakSenseApp> {
   final RakshakState _appState = RakshakState();
+  bool _showSplash = true;
 
   @override
   void dispose() {
@@ -34,12 +35,28 @@ class _RakshakSenseAppState extends State<RakshakSenseApp> {
       listenable: _appState,
       builder: (context, _) {
         return MaterialApp(
-          title: 'RakshakSense • CRPF / MHA',
+          title: 'VeerSetu • RakshakSense (CRPF / MHA)',
           debugShowCheckedModeBanner: false,
           theme: TacticalColors.buildTheme(
             isSunlightMode: _appState.isSunlightMode,
           ),
-          home: RakshakShell(appState: _appState),
+          home: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 420),
+            child: _showSplash
+                ? VeerSetuSplashScreen(
+                    key: const ValueKey('veersetu_splash'),
+                    onFinished: () {
+                      if (mounted) {
+                        setState(() => _showSplash = false);
+                      }
+                    },
+                  )
+                : RakshakShell(
+                    key: const ValueKey('veersetu_shell'),
+                    appState: _appState,
+                    onReplaySplash: () => setState(() => _showSplash = true),
+                  ),
+          ),
         );
       },
     );
@@ -50,10 +67,12 @@ class _RakshakSenseAppState extends State<RakshakSenseApp> {
 /// with PathWise's Bento Workspace Container.
 class RakshakShell extends StatelessWidget {
   final RakshakState appState;
+  final VoidCallback onReplaySplash;
 
   const RakshakShell({
     super.key,
     required this.appState,
+    required this.onReplaySplash,
   });
 
   @override
@@ -149,22 +168,10 @@ class RakshakShell extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: TacticalColors.emeraldPrimary.withAlpha(35),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color:
-                                  TacticalColors.emeraldPrimary.withAlpha(140),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            isJawan ? '🪖' : '👨‍⚕️',
-                            style: const TextStyle(fontSize: 18),
-                          ),
+                        InkWell(
+                          onTap: onReplaySplash,
+                          customBorder: const CircleBorder(),
+                          child: const VeerSetuLogoBadge(size: 42),
                         ),
                         const SizedBox(width: 10),
                         Flexible(
@@ -175,12 +182,12 @@ class RakshakShell extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'RAKSHAK SENSE',
+                                    'VEER SETU • RAKSHAK SENSE',
                                     style: TextStyle(
                                       color: TacticalColors.textMain(sunlight),
-                                      fontSize: 16,
+                                      fontSize: 15.5,
                                       fontWeight: FontWeight.w900,
-                                      letterSpacing: 1.0,
+                                      letterSpacing: 0.8,
                                     ),
                                   ),
                                   const SizedBox(width: 7),
@@ -645,3 +652,314 @@ class RakshakShell extends StatelessWidget {
     );
   }
 }
+
+/// Custom vector-drawn VeerSetu / RakshakSense Shield + Valor Star + ECG Pulse Logo
+class VeerSetuLogoBadge extends StatelessWidget {
+  final double size;
+
+  const VeerSetuLogoBadge({
+    super.key,
+    this.size = 44,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _VeerSetuLogoPainter(),
+      ),
+    );
+  }
+}
+
+class _VeerSetuLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final center = Offset(w * 0.5, h * 0.5);
+
+    // 1. Background Circle
+    final bgPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF0A192F), Color(0xFF063B3A)],
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawCircle(center, w * 0.48, bgPaint);
+
+    // Outer Border Ring
+    final ringPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = w * 0.035
+      ..shader = const LinearGradient(
+        colors: [TacticalColors.emeraldPrimary, TacticalColors.cyberTeal],
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawCircle(center, w * 0.47, ringPaint);
+
+    // 2. Outer Tactical Shield
+    final outerShield = Path()
+      ..moveTo(w * 0.50, h * 0.13)
+      ..lineTo(w * 0.81, h * 0.25)
+      ..lineTo(w * 0.81, h * 0.49)
+      ..cubicTo(w * 0.81, h * 0.69, w * 0.67, h * 0.83, w * 0.50, h * 0.89)
+      ..cubicTo(w * 0.33, h * 0.83, w * 0.19, h * 0.69, w * 0.19, h * 0.49)
+      ..lineTo(w * 0.19, h * 0.25)
+      ..close();
+    final shieldPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [TacticalColors.emeraldPrimary, TacticalColors.cyberTeal],
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawPath(outerShield, shieldPaint);
+
+    // 3. Inner Dark Core Shield
+    final innerShield = Path()
+      ..moveTo(w * 0.50, h * 0.18)
+      ..lineTo(w * 0.76, h * 0.29)
+      ..lineTo(w * 0.76, h * 0.48)
+      ..cubicTo(w * 0.76, h * 0.65, w * 0.64, h * 0.77, w * 0.50, h * 0.83)
+      ..cubicTo(w * 0.36, h * 0.77, w * 0.24, h * 0.65, w * 0.24, h * 0.48)
+      ..lineTo(w * 0.24, h * 0.29)
+      ..close();
+    final innerPaint = Paint()..color = const Color(0xFF0A192C);
+    canvas.drawPath(innerShield, innerPaint);
+
+    // 4. Valor Diamond Crest
+    final crest = Path()
+      ..moveTo(w * 0.50, h * 0.23)
+      ..lineTo(w * 0.545, h * 0.285)
+      ..lineTo(w * 0.50, h * 0.34)
+      ..lineTo(w * 0.455, h * 0.285)
+      ..close();
+    canvas.drawPath(crest, Paint()..color = const Color(0xFFF59E0B));
+
+    // 5. ECG Biometric Heartbeat Pulse
+    final ecg = Path()
+      ..moveTo(w * 0.27, h * 0.51)
+      ..lineTo(w * 0.38, h * 0.51)
+      ..lineTo(w * 0.42, h * 0.41)
+      ..lineTo(w * 0.48, h * 0.63)
+      ..lineTo(w * 0.54, h * 0.35)
+      ..lineTo(w * 0.59, h * 0.55)
+      ..lineTo(w * 0.63, h * 0.51)
+      ..lineTo(w * 0.73, h * 0.51);
+    final ecgPaint = Paint()
+      ..color = const Color(0xFF34D399)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = w * 0.042
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(ecg, ecgPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Animated Splash Screen Intro for VeerSetu / RakshakSense
+class VeerSetuSplashScreen extends StatefulWidget {
+  final VoidCallback onFinished;
+
+  const VeerSetuSplashScreen({
+    super.key,
+    required this.onFinished,
+  });
+
+  @override
+  State<VeerSetuSplashScreen> createState() => _VeerSetuSplashScreenState();
+}
+
+class _VeerSetuSplashScreenState extends State<VeerSetuSplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1300),
+    )..repeat(reverse: true);
+
+    Future.delayed(const Duration(milliseconds: 2400), () {
+      if (mounted) {
+        widget.onFinished();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF060E1A),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF050B14),
+              Color(0xFF0A1628),
+              Color(0xFF072227),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: TacticalColors.emeraldPrimary.withAlpha(35),
+                        borderRadius: BorderRadius.circular(99),
+                        border: Border.all(
+                          color: TacticalColors.emeraldPrimary.withAlpha(115),
+                        ),
+                      ),
+                      child: const Text(
+                        '🇮🇳 MINISTRY OF HOME AFFAIRS • CRPF • SIH26186',
+                        style: TextStyle(
+                          color: Color(0xFF6EE7B7),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    SizedBox(
+                      width: 172,
+                      height: 172,
+                      child: AnimatedBuilder(
+                        animation: _pulseController,
+                        builder: (context, child) {
+                          final scale = 0.94 + (_pulseController.value * 0.14);
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Transform.scale(
+                                scale: scale,
+                                child: Container(
+                                  width: 156,
+                                  height: 156,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: TacticalColors.emeraldPrimary
+                                        .withAlpha(20),
+                                    border: Border.all(
+                                      color: TacticalColors.emeraldPrimary
+                                          .withAlpha(75),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              child!,
+                            ],
+                          );
+                        },
+                        child: const VeerSetuLogoBadge(size: 116),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2.0,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'VEER',
+                            style: TextStyle(color: Color(0xFFF8FAFC)),
+                          ),
+                          TextSpan(
+                            text: 'SETU',
+                            style: TextStyle(
+                              color: TacticalColors.emeraldPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'RAKSHAK SENSE • वीर सेतु सुरक्षा कवच',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: TacticalColors.cyberTeal,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'हर जवान के स्वास्थ्य, मनोबल और कल्याण का स्मार्ट साथी',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFFF1F5F9),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'AI-Based Predictive Stress & Welfare Monitoring System for Uniformed Forces',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFFCBD5E1),
+                        fontSize: 12.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      onPressed: widget.onFinished,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: TacticalColors.emeraldPrimary,
+                        foregroundColor: const Color(0xFF042F2E),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                      icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                      label: const Text(
+                        'Launch Tactical Console',
+                        style: TextStyle(fontWeight: FontWeight.w900),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

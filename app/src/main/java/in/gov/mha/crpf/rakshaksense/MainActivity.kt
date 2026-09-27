@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,6 +69,8 @@ import `in`.gov.mha.crpf.rakshaksense.model.RakshakState
 import `in`.gov.mha.crpf.rakshaksense.ui.JawanCompanionScreen
 import `in`.gov.mha.crpf.rakshaksense.ui.MoCommanderConsoleScreen
 import `in`.gov.mha.crpf.rakshaksense.ui.TacticalPalette
+import `in`.gov.mha.crpf.rakshaksense.ui.VeerSetuLogoBadge
+import `in`.gov.mha.crpf.rakshaksense.ui.VeerSetuSplashScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -102,18 +106,28 @@ fun RakshakSenseApp(state: RakshakState) {
     }
 
     MaterialTheme(colorScheme = colorScheme) {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(TacticalPalette.bgPrimary(sunlight))
-                .windowInsetsPadding(WindowInsets.safeDrawing)
-        ) {
-            val autoTablet = maxWidth >= 680.dp
-            val isTabletLayout = when (state.layoutModeOverride) {
-                1 -> false
-                2 -> true
-                else -> autoTablet
-            }
+        Crossfade(
+            targetState = state.showSplash,
+            animationSpec = tween(durationMillis = 450),
+            label = "splashCrossfade"
+        ) { isSplashVisible ->
+            if (isSplashVisible) {
+                VeerSetuSplashScreen(
+                    onFinished = { state.showSplash = false }
+                )
+            } else {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(TacticalPalette.bgPrimary(sunlight))
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
+                ) {
+                    val autoTablet = maxWidth >= 680.dp
+                    val isTabletLayout = when (state.layoutModeOverride) {
+                        1 -> false
+                        2 -> true
+                        else -> autoTablet
+                    }
 
             Scaffold(
                 containerColor = TacticalPalette.bgPrimary(sunlight),
@@ -204,6 +218,8 @@ fun RakshakSenseApp(state: RakshakState) {
                     }
                 }
             }
+                }
+            }
         }
     }
 }
@@ -243,28 +259,19 @@ private fun SehatSetuTopIslandHeader(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
+                    VeerSetuLogoBadge(
+                        size = 44.dp,
                         modifier = Modifier
-                            .size(40.dp)
                             .clip(CircleShape)
-                            .background(TacticalPalette.Emerald.copy(alpha = 0.20f))
-                            .border(1.5.dp, TacticalPalette.Emerald, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Security,
-                            contentDescription = null,
-                            tint = TacticalPalette.Emerald,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                            .clickable { state.showSplash = true }
+                    )
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "RAKSHAK SENSE",
+                                text = "VEER SETU • RAKSHAK SENSE",
                                 color = TacticalPalette.textPrimary(sunlight),
-                                fontSize = 16.sp,
+                                fontSize = 15.5.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 letterSpacing = 0.6.sp,
                                 maxLines = 1,
@@ -292,7 +299,7 @@ private fun SehatSetuTopIslandHeader(
                         }
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "CRPF / MHA • AI Personnel Stress & Welfare System",
+                            text = "CRPF / MHA • AI Personnel Stress & Welfare System (Tap logo for Intro)",
                             color = TacticalPalette.textSecondary(sunlight),
                             fontSize = 11.5.sp,
                             fontWeight = FontWeight.Medium,
