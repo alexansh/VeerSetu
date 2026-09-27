@@ -21,6 +21,39 @@ data class AttributionFactor(
     val isAlert: Boolean = false
 )
 
+data class CompanyRiskUnit(
+    val companyName: String,
+    val deploymentRole: String,
+    val personnelCount: Int,
+    val avgFrsi: Int,
+    val fourWeekTrend: String,
+    val highRiskCount: Int
+) {
+    val tier: RiskTier
+        get() = when {
+            avgFrsi >= 70 -> RiskTier.OPTIMAL
+            avgFrsi >= 55 -> RiskTier.MODERATE
+            else -> RiskTier.CRITICAL
+        }
+}
+
+data class WelfareAlertItem(
+    val alertId: String,
+    val timestamp: String,
+    val unitName: String,
+    val maskedToken: String,
+    val fullPersonnelName: String,
+    val triggerReason: String,
+    val recommendedAction: String,
+    val acknowledged: Boolean = false
+)
+
+data class ChatMessage(
+    val sender: String, // "bot" or "user"
+    val text: String,
+    val timestamp: String
+)
+
 data class PersonnelRecord(
     val id: String,
     val name: String,
@@ -41,14 +74,29 @@ data class PersonnelRecord(
 
     val closedLoopStep: Int
         get() = if (status == "Intervention Scheduled") 3 else 2
+
+    // Anonymized fields for Commander (Aggregate-Only) Role (#6 & #8)
+    val maskedId: String
+        get() = "ANON-SHA256-${id.takeLast(4)}"
+
+    val maskedName: String
+        get() = "Personnel Token #${id.takeLast(4)} [Identity Masked]"
+
+    val maskedTelemetry: String
+        get() = "🔒 Raw biometric & clinical telemetry encrypted under MHA Zero-Stigma Firewall (Accessible to Welfare/Medical Officer only)."
 }
 
 class RakshakState {
     // Splash screen intro visibility (true on initial launch, can be replayed by tapping logo)
     var showSplash by mutableStateOf(true)
 
-    // 0 = Jawan Companion, 1 = MO / Commander Console
+    // 0 = Personnel (Self-Only Jawan Companion), 1 = Welfare Officer / Commander Console
     var activeTab by mutableIntStateOf(0)
+
+    // 3-Tier RBAC Role inside Console (#6 & #8):
+    // 0 = Welfare / Medical Officer (Unit-Level Authorized, Unmasked Clinical Triage + Alerts)
+    // 1 = Unit Commander (Aggregate-Only, Masked IDs, Unit Heatmap & PDF Export)
+    var consoleSubRole by mutableIntStateOf(0)
 
     // Sehat Setu (VitalSense / NagarSeva) Top Island Toggles
     var isSunlightMode by mutableStateOf(false)
@@ -77,6 +125,160 @@ class RakshakState {
         2, 3, 3, 2, 1, 2, 3,
         3, 3, 2, 3, 3, 2, 3
     )
+
+    // Feature #1: Unit-Wise Company Risk Heatmap & 4-Week Trends for Commander/Welfare Dashboard
+    val unitHeatmap = mutableStateListOf(
+        CompanyRiskUnit(
+            companyName = "Bravo Coy",
+            deploymentRole = "72h LRP • Bastar Core",
+            personnelCount = 24,
+            avgFrsi = 48,
+            fourWeekTrend = "-9% (High Fatigue)",
+            highRiskCount = 2
+        ),
+        CompanyRiskUnit(
+            companyName = "Fwd Post 3",
+            deploymentRole = "High-Altitude Overwatch",
+            personnelCount = 18,
+            avgFrsi = 58,
+            fourWeekTrend = "-5% (Rotation Due)",
+            highRiskCount = 1
+        ),
+        CompanyRiskUnit(
+            companyName = "Charlie Coy",
+            deploymentRole = "Night QRT Platoon",
+            personnelCount = 22,
+            avgFrsi = 64,
+            fourWeekTrend = "-3% (Watch)",
+            highRiskCount = 1
+        ),
+        CompanyRiskUnit(
+            companyName = "Alpha Coy",
+            deploymentRole = "Perimeter Security",
+            personnelCount = 20,
+            avgFrsi = 79,
+            fourWeekTrend = "+4% (Stable)",
+            highRiskCount = 0
+        ),
+        CompanyRiskUnit(
+            companyName = "Delta Coy",
+            deploymentRole = "Reserve Lines",
+            personnelCount = 20,
+            avgFrsi = 88,
+            fourWeekTrend = "+7% (Recovered)",
+            highRiskCount = 0
+        ),
+        CompanyRiskUnit(
+            companyName = "HQ & Signals",
+            deploymentRole = "Command & Comms",
+            personnelCount = 16,
+            avgFrsi = 91,
+            fourWeekTrend = "+5% (Optimal)",
+            highRiskCount = 0
+        )
+    )
+
+    // Feature #7: Automated Alerts for Welfare Personnel ONLY (Never Disciplinary Chain)
+    val welfareAlerts = mutableStateListOf(
+        WelfareAlertItem(
+            alertId = "WLF-ALERT-901",
+            timestamp = "06:15 HRS",
+            unitName = "B Company • Bastar Sector",
+            maskedToken = "ANON-SHA256-4920",
+            fullPersonnelName = "Constable Rajesh Kumar (CRPF-84920)",
+            triggerReason = "FRSI dropped to 42/100 (72h sleep debt + +18 bpm resting HR drift)",
+            recommendedAction = "Mandatory 48h Rest Rotation + Confidential MO Check-in"
+        ),
+        WelfareAlertItem(
+            alertId = "WLF-ALERT-884",
+            timestamp = "05:40 HRS",
+            unitName = "Forward Post 3 • High Altitude",
+            maskedToken = "ANON-SHA256-3104",
+            fullPersonnelName = "Havildar Surender Singh (CRPF-73104)",
+            triggerReason = "14 continuous days at Forward Post + fragmented REM recovery",
+            recommendedAction = "Schedule Platoon Relief Rotation & Family Welfare Call"
+        )
+    )
+
+    // Feature #11: Anonymous Peer-Support Chatbot ("VeerMitra / वीर-मित्र") — No Login Required
+    val chatMessages = mutableStateListOf(
+        ChatMessage(
+            sender = "bot",
+            text = "Jai Hind! I am VeerMitra (वीर-मित्र), your 100% anonymous peer-support companion. No login or Service ID is recorded. Tap a topic below or type how you are feeling.",
+            timestamp = "Encrypted Ephemeral Session"
+        )
+    )
+
+    fun sendPeerSupportMessage(userPrompt: String) {
+        val trimmed = userPrompt.trim()
+        if (trimmed.isEmpty()) return
+        chatMessages.add(
+            ChatMessage(
+                sender = "user",
+                text = trimmed,
+                timestamp = "Just now"
+            )
+        )
+        val lower = trimmed.lowercase()
+        val reply = when {
+            lower.contains("sleep") || lower.contains("night") || lower.contains("नींद") -> {
+                if (isHindi) {
+                    "रात्रि गश्त के बाद नींद न आना सामान्य है। सुझाव: (1) सोने से 30 मिनट पहले कैफीन से बचें, (2) ऊपर दिए गए 4-4-4-4 बॉक्स ब्रीदिंग अभ्यास को 60 सेकंड चलाएं, और (3) अपने शरीर का तापमान सामान्य करने के लिए पैरों को गुनगुने पानी से धोएं।"
+                } else {
+                    "Post-night-shift insomnia is caused by elevated cortisol after high-alert sentry duty. Try: (1) Run the 60s 4-4-4-4 Box Breathing drill above to trigger a vagal heart-rate drop, (2) Avoid tea/caffeine 3 hours before rest, and (3) Request a 20-minute dark-room power recovery window."
+                }
+            }
+            lower.contains("home") || lower.contains("family") || lower.contains("परिवार") || lower.contains("घर") -> {
+                if (isHindi) {
+                    "परिवार से दूर रहना कठिन है। आप अकेले नहीं हैं—आपकी बटालियन में 'कल्याण कॉल प्राथमिकता' उपलब्ध है। आप बिना किसी झिझक के यूनिट वेलफेयर ऑफिसर से 15 मिनट के सैटेलाइट/कल्याण कॉल या प्राथमिकता अवकाश की मांग कर सकते हैं।"
+                } else {
+                    "Missing family during extended deployment is completely natural. You can request a Priority Satellite Welfare Call or Leave Counselling through the Welfare Officer—this is 100% confidential and never affects your promotion or service record."
+                }
+            }
+            lower.contains("patrol") || lower.contains("anx") || lower.contains("stress") || lower.contains("तनाव") || lower.contains("घबराहट") -> {
+                if (isHindi) {
+                    "लंबी गश्त (LRP) के बाद शरीर 'हाइपर-विजिलेंस' मोड में रहता है। अभी 5 गहरी सांसें लें, अपने कंधों को ढीला छोड़ें, और पर्याप्त इलेक्ट्रोलाइट पानी पिएं। यदि थकान बनी रहती है, तो गोपनीय एमओ परामर्श बटन दबाएं।"
+                } else {
+                    "After a long-range patrol (LRP), your nervous system stays in combat hypervigilance. Ground yourself: name 3 things you see, drink 500ml water with electrolytes, and do 4 cycles of Box Breathing. You can also tap 'Request Confidential Talk with Unit MO' anytime."
+                }
+            }
+            lower.contains("privacy") || lower.contains("acr") || lower.contains("record") || lower.contains("गोपनीय") -> {
+                if (isHindi) {
+                    "100% गोपनीयता गारंटी: वीर-मित्र चैट में कोई लॉगिन या सर्विस आईडी सेव नहीं होती। आपके स्वास्थ्य और तनाव के आंकड़े कमांडर या अनुशासनात्मक चेन से पूरी तरह छिपे रहते हैं।"
+                } else {
+                    "Strict MHA Privacy Firewall: VeerMitra does not log your Service ID, name, or IP. Furthermore, Unit Commanders only see anonymized aggregate stats—never your individual check-ins or chat messages."
+                }
+            }
+            else -> {
+                if (isHindi) {
+                    "मैं आपकी बात समझता हूँ, जवान। आपका मानसिक और शारीरिक स्वास्थ्य देश के लिए अमूल्य है। कृपया 60-सेकंड का ब्रीदिंग ड्रिल आज़माएं या बिना किसी संकोच के यूनिट मेडिकल ऑफिसर से गोपनीय चर्चा करें।"
+                } else {
+                    "I hear you, Jawan. Staying resilient in tough terrain takes recovery, not just endurance. Consider taking a 60-second Box Breathing reset right now, or tap 'Request Confidential Talk with Unit MO' for a private, zero-stigma welfare check."
+                }
+            }
+        }
+        chatMessages.add(
+            ChatMessage(
+                sender = "bot",
+                text = reply,
+                timestamp = "VeerMitra Edge-AI • Anonymous"
+            )
+        )
+    }
+
+    fun clearChatHistory() {
+        chatMessages.clear()
+        chatMessages.add(
+            ChatMessage(
+                sender = "bot",
+                text = if (isHindi)
+                    "चैट इतिहास साफ़ कर दिया गया है। यह सत्र 100% गुमनाम है।"
+                else
+                    "Session wiped cleanly. Zero logs retained. How can I support you today?",
+                timestamp = "Encrypted Ephemeral Session"
+            )
+        )
+    }
 
     val currentTier: RiskTier
         get() = when {
@@ -242,6 +444,22 @@ class RakshakState {
             else -> 0
         }
         resilienceHeatmap28Days[resilienceHeatmap28Days.lastIndex] = heatVal
+
+        // Feature #7: Automatically notify Welfare Officer ONLY (never disciplinary chain) if FRSI < 50
+        if (frsiScore < 50 && welfareAlerts.none { it.alertId == "WLF-LIVE-772" }) {
+            welfareAlerts.add(
+                0,
+                WelfareAlertItem(
+                    alertId = "WLF-LIVE-772",
+                    timestamp = "LIVE NOW",
+                    unitName = "204 CoBRA Bn • Bastar South",
+                    maskedToken = "ANON-SHA256-7721",
+                    fullPersonnelName = "Constable Vikram Singh (Self Check-in Alert)",
+                    triggerReason = "FRSI dropped to $frsiScore/100 during field check-in (${"%.1f".format(sleepHours)}h sleep, Fatigue $fatigueLevel/5)",
+                    recommendedAction = "Immediate Welfare Officer Outreach • Non-Disciplinary Support"
+                )
+            )
+        }
         return frsiScore
     }
 

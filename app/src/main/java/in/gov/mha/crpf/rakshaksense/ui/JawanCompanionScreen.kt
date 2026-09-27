@@ -25,16 +25,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.NightlightRound
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.AlertDialog
@@ -42,6 +45,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -314,6 +319,11 @@ fun JawanCompanionScreen(
                     )
                 }
             }
+            VeerMitraAnonymousChatbotCard(
+                state = state,
+                sunlight = sunlight,
+                hindi = hindi
+            )
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 FrsiHeroBentoCard(state = state, sunlight = sunlight, hindi = hindi)
@@ -336,6 +346,11 @@ fun JawanCompanionScreen(
                         secondsLeft = 4
                     },
                     onRequestMo = { showConfidentialDialog = true }
+                )
+                VeerMitraAnonymousChatbotCard(
+                    state = state,
+                    sunlight = sunlight,
+                    hindi = hindi
                 )
             }
         }
@@ -1113,3 +1128,235 @@ private fun BoxBreathingAndCounselingCard(
         }
     }
 }
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun VeerMitraAnonymousChatbotCard(
+    state: RakshakState,
+    sunlight: Boolean,
+    hindi: Boolean
+) {
+    var inputText by remember { mutableStateOf("") }
+
+    TacticalBentoCard(
+        sunlight = sunlight,
+        accentLeftColor = TacticalPalette.CyberTeal
+    ) {
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.SmartToy,
+                    contentDescription = null,
+                    tint = TacticalPalette.CyberTeal,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = if (hindi)
+                            "वीर-मित्र • गुमनाम सहकर्मी सहायता चैटबॉट"
+                        else
+                            "VEER-MITRA • ANONYMOUS PEER-SUPPORT CHATBOT",
+                        color = TacticalPalette.CyberTeal,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.5.sp
+                    )
+                    Text(
+                        text = if (hindi)
+                            "कोई लॉगिन या सर्विस आईडी आवश्यक नहीं • 100% गोपनीय तनाव राहत और FAQ"
+                        else
+                            "Zero Login Required • Rule-Based Stress-Relief Tips & Welfare FAQs",
+                        color = TacticalPalette.textSecondary(sunlight),
+                        fontSize = 11.5.sp
+                    )
+                }
+            }
+            Surface(
+                shape = RoundedCornerShape(999.dp),
+                color = TacticalPalette.bgElevated(sunlight),
+                border = BorderStroke(1.dp, TacticalPalette.border(sunlight)),
+                modifier = Modifier.clickable { state.clearChatHistory() }
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DeleteSweep,
+                        contentDescription = null,
+                        tint = TacticalPalette.Amber,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (hindi) "चैट साफ़ करें" else "Wipe Chat",
+                        color = TacticalPalette.textPrimary(sunlight),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Quick-Tap Topic Chips
+        Text(
+            text = if (hindi) "त्वरित सहायता विषय (1-टैप):" else "INSTANT ANONYMOUS SUPPORT TOPICS (1-TAP):",
+            color = TacticalPalette.textSecondary(sunlight),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            PresetChip(
+                label = if (hindi) "🌙 रात्रि ड्यूटी के बाद नींद" else "🌙 Sleep after Night Shift",
+                color = TacticalPalette.CyberTeal,
+                onClick = {
+                    state.sendPeerSupportMessage(
+                        if (hindi) "रात्रि गश्त के बाद नींद कैसे पूरी करें?" else "How to recover sleep after night duty?"
+                    )
+                }
+            )
+            PresetChip(
+                label = if (hindi) "🏠 परिवार और छुट्टी तनाव" else "🏠 Homesickness & Family",
+                color = TacticalPalette.Emerald,
+                onClick = {
+                    state.sendPeerSupportMessage(
+                        if (hindi) "परिवार की याद और छुट्टी के लिए क्या करें?" else "Feeling homesick and worried about family leave"
+                    )
+                }
+            )
+            PresetChip(
+                label = if (hindi) "⚡ गश्त के बाद घबराहट" else "⚡ Post-Patrol Restlessness",
+                color = TacticalPalette.Amber,
+                onClick = {
+                    state.sendPeerSupportMessage(
+                        if (hindi) "लंबी गश्त के बाद तनाव कैसे कम करें?" else "How to calm post-patrol stress and anxiety?"
+                    )
+                }
+            )
+            PresetChip(
+                label = if (hindi) "🛡️ गोपनीयता और ACR नियम" else "🛡️ Privacy & ACR FAQ",
+                color = TacticalPalette.Emerald,
+                onClick = {
+                    state.sendPeerSupportMessage(
+                        if (hindi) "क्या यह चैट गोपनीय है?" else "How is my privacy and ACR protected?"
+                    )
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Chat Message Feed
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(TacticalPalette.bgElevated(sunlight))
+                .border(1.dp, TacticalPalette.border(sunlight), RoundedCornerShape(12.dp))
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            state.chatMessages.takeLast(4).forEach { msg ->
+                val isBot = msg.sender == "bot"
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = if (isBot) Arrangement.Start else Arrangement.End
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isBot)
+                            TacticalPalette.bgCard(sunlight)
+                        else
+                            TacticalPalette.Emerald.copy(alpha = 0.22f),
+                        border = BorderStroke(
+                            1.dp,
+                            if (isBot) TacticalPalette.CyberTeal.copy(alpha = 0.45f)
+                            else TacticalPalette.Emerald
+                        ),
+                        modifier = Modifier.fillMaxWidth(0.92f)
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            Text(
+                                text = if (isBot) "🤖 VeerMitra • ${msg.timestamp}" else "🪖 You (Anonymous)",
+                                color = if (isBot) TacticalPalette.CyberTeal else TacticalPalette.Emerald,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = msg.text,
+                                color = TacticalPalette.textPrimary(sunlight),
+                                fontSize = 12.5.sp,
+                                lineHeight = 18.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Input Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = inputText,
+                onValueChange = { inputText = it },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                placeholder = {
+                    Text(
+                        text = if (hindi)
+                            "यहाँ गुमनाम रूप से अपना प्रश्न लिखें..."
+                        else
+                            "Ask VeerMitra anonymously (no login)...",
+                        color = TacticalPalette.textSecondary(sunlight),
+                        fontSize = 12.sp
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TacticalPalette.textPrimary(sunlight),
+                    unfocusedTextColor = TacticalPalette.textPrimary(sunlight),
+                    focusedBorderColor = TacticalPalette.CyberTeal,
+                    unfocusedBorderColor = TacticalPalette.border(sunlight)
+                ),
+                shape = RoundedCornerShape(10.dp)
+            )
+            Button(
+                onClick = {
+                    if (inputText.isNotBlank()) {
+                        state.sendPeerSupportMessage(inputText)
+                        inputText = ""
+                    }
+                },
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = TacticalPalette.CyberTeal,
+                    contentColor = Color(0xFF042F2E)
+                ),
+                modifier = Modifier.height(52.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send"
+                )
+            }
+        }
+    }
+}
+

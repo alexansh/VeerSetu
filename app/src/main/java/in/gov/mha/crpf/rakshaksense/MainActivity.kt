@@ -352,7 +352,7 @@ private fun SehatSetuTopIslandHeader(
                 )
             }
 
-            // Row 3: Dual-View Role Switcher Bar
+            // Row 3: 3-Tier RBAC Role Switcher Bar (#6 Role-Based Access Control)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -360,23 +360,37 @@ private fun SehatSetuTopIslandHeader(
                     .background(TacticalPalette.bgElevated(sunlight))
                     .border(1.dp, TacticalPalette.border(sunlight), RoundedCornerShape(12.dp))
                     .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 RoleSwitcherTab(
                     modifier = Modifier.weight(1f),
                     selected = state.activeTab == 0,
-                    label = "Jawan Companion",
+                    label = if (state.isHindi) "जवान (स्वयं)" else "Personnel (Self)",
                     icon = Icons.Default.Person,
                     sunlight = sunlight,
                     onClick = { state.activeTab = 0 }
                 )
                 RoleSwitcherTab(
                     modifier = Modifier.weight(1f),
-                    selected = state.activeTab == 1,
-                    label = "Commander / MO",
+                    selected = state.activeTab == 1 && state.consoleSubRole == 0,
+                    label = if (state.isHindi) "कल्याण अधिकारी" else "Welfare Officer",
+                    icon = Icons.Default.Security,
+                    sunlight = sunlight,
+                    onClick = {
+                        state.activeTab = 1
+                        state.consoleSubRole = 0
+                    }
+                )
+                RoleSwitcherTab(
+                    modifier = Modifier.weight(1f),
+                    selected = state.activeTab == 1 && state.consoleSubRole == 1,
+                    label = if (state.isHindi) "कमांडर (समग्र)" else "Commander",
                     icon = Icons.Default.Dashboard,
                     sunlight = sunlight,
-                    onClick = { state.activeTab = 1 }
+                    onClick = {
+                        state.activeTab = 1
+                        state.consoleSubRole = 1
+                    }
                 )
             }
         }
@@ -437,7 +451,7 @@ private fun RoleSwitcherTab(
         color = if (selected) TacticalPalette.Emerald else Color.Transparent
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 9.dp, horizontal = 8.dp),
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 6.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -445,13 +459,13 @@ private fun RoleSwitcherTab(
                 imageVector = icon,
                 contentDescription = null,
                 tint = if (selected) Color(0xFF042F2E) else TacticalPalette.textPrimary(sunlight),
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(15.dp)
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = label,
                 color = if (selected) Color(0xFF042F2E) else TacticalPalette.textPrimary(sunlight),
-                fontSize = 12.5.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.ExtraBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -472,7 +486,7 @@ private fun SehatSetuFloatingBottomDock(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             contentAlignment = Alignment.Center
         ) {
             Surface(
@@ -485,27 +499,42 @@ private fun SehatSetuFloatingBottomDock(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        .padding(horizontal = 6.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     BottomDockPillItem(
                         modifier = Modifier.weight(1f),
                         selected = state.activeTab == 0,
                         icon = Icons.Default.Person,
-                        label = "Jawan View",
+                        label = "Jawan",
                         badge = "${state.frsiScore}",
                         sunlight = sunlight,
                         onClick = { state.activeTab = 0 }
                     )
                     BottomDockPillItem(
                         modifier = Modifier.weight(1f),
-                        selected = state.activeTab == 1,
-                        icon = Icons.Default.Dashboard,
-                        label = "MO Console",
-                        badge = "4 Alerts",
+                        selected = state.activeTab == 1 && state.consoleSubRole == 0,
+                        icon = Icons.Default.Security,
+                        label = "Welfare MO",
+                        badge = "${state.welfareAlerts.size}",
                         sunlight = sunlight,
-                        onClick = { state.activeTab = 1 }
+                        onClick = {
+                            state.activeTab = 1
+                            state.consoleSubRole = 0
+                        }
+                    )
+                    BottomDockPillItem(
+                        modifier = Modifier.weight(1f),
+                        selected = state.activeTab == 1 && state.consoleSubRole == 1,
+                        icon = Icons.Default.Dashboard,
+                        label = "Commander",
+                        badge = "PDF",
+                        sunlight = sunlight,
+                        onClick = {
+                            state.activeTab = 1
+                            state.consoleSubRole = 1
+                        }
                     )
                 }
             }
